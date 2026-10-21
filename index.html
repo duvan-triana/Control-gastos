@@ -116,6 +116,17 @@
     .tag-hospedaje { background: #e0e7ff; color: #3730a3; }
     .tag-personal { background: #fce7f3; color: #9d174d; }
 
+    .btn-delete {
+      background: none;
+      border: none;
+      color: var(--accent-danger);
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+    }
+    .btn-delete:hover { background-color: #fee2e2; }
+
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.6rem; }
     @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
     input, select, button {
@@ -144,9 +155,9 @@
 
     <!-- BARRA DE NAVEGACIÓN -->
     <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('resumen')">📊 Resumen General</button>
-      <button class="tab-btn" onclick="switchTab('empresa')">🏢 Gastos Empresa</button>
-      <button class="tab-btn" onclick="switchTab('personal')">👤 Gastos Personales</button>
+      <button class="tab-btn active" onclick="switchTab('resumen', event)">📊 Resumen General</button>
+      <button class="tab-btn" onclick="switchTab('empresa', event)">🏢 Gastos Empresa</button>
+      <button class="tab-btn" onclick="switchTab('personal', event)">👤 Gastos Personales</button>
     </nav>
 
     <!-- FORMULARIO DE REGISTRO RÁPIDO -->
@@ -161,8 +172,8 @@
             <option value="Personal">👤 Personal</option>
           </select>
           <select id="category">
-            <option value="Transporte">Transporte</option>
             <option value="Alimentación">Alimentación</option>
+            <option value="Transporte">Transporte</option>
             <option value="Hospedaje">Hospedaje</option>
             <option value="Personal">Personal / Compras</option>
           </select>
@@ -181,17 +192,17 @@
         </div>
         <div class="card">
           <div class="card-title">Legalizable (Empresa)</div>
-          <div class="card-value" id="kpi-empresa-gen">$ 528.700</div>
+          <div class="card-value" id="kpi-empresa-gen">$ 0</div>
           <div class="card-sub">Total facturado a empresa</div>
         </div>
         <div class="card">
           <div class="card-title">Gastos Personales</div>
-          <div class="card-value text-purple" id="kpi-personal-gen">$ 170.000</div>
+          <div class="card-value text-purple" id="kpi-personal-gen">$ 0</div>
           <div class="card-sub">Compras de uso personal</div>
         </div>
         <div class="card">
           <div class="card-title">Saldo a Reponer</div>
-          <div class="card-value text-danger" id="kpi-reponer">$ 246.423</div>
+          <div class="card-value text-danger" id="kpi-reponer">$ 0</div>
           <div class="card-sub">Aportar de fondos propios</div>
         </div>
       </div>
@@ -207,6 +218,7 @@
                   <th>Tipo</th>
                   <th>Categoría</th>
                   <th>Valor</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody id="table-all"></tbody>
@@ -221,213 +233,4 @@
               <canvas id="expensesChart"></canvas>
             </div>
           </div>
-          <div class="alert-box">
-            <strong>📌 Estado del Cuadre:</strong><br>
-            Para cerrar el anticipo de $1.100.505 debes devolver $571.805 a la empresa. Usando tu efectivo disponible ($148k) y banco ($177k), debes reponer <span id="summary-reponer">$246.423</span> de tus fondos propios.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PESTAÑA 2: EMPRESA -->
-    <div id="tab-empresa" class="tab-content">
-      <div class="kpi-grid">
-        <div class="card">
-          <div class="card-title">Presupuesto Legalizable</div>
-          <div class="card-value text-success" id="kpi-empresa-sub">$ 528.700</div>
-          <div class="card-sub">Aprobado para soporte fiscal</div>
-        </div>
-        <div class="card">
-          <div class="card-title">Soporte requeridos</div>
-          <div class="card-value">7 Facturas/Tiquetes</div>
-          <div class="card-sub">Hoteles, taxis y alimentaciones</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header"><h2>🏢 Detalle de Gastos Corporativos (Empresa)</h2></div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Concepto</th>
-                <th>Categoría</th>
-                <th>Valor COP</th>
-              </tr>
-            </thead>
-            <tbody id="table-empresa"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- PESTAÑA 3: PERSONAL -->
-    <div id="tab-personal" class="tab-content">
-      <div class="kpi-grid">
-        <div class="card">
-          <div class="card-title">Total Compras Personales</div>
-          <div class="card-value text-purple" id="kpi-personal-sub">$ 170.000</div>
-          <div class="card-sub">Efectuados durante el viaje</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header"><h2>👤 Detalle de Gastos Personales</h2></div>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Concepto</th>
-                <th>Categoría</th>
-                <th>Valor COP</th>
-              </tr>
-            </thead>
-            <tbody id="table-personal"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
-    const initialExpenses = [
-      { desc: "Taxi Casa - Aeropuerto", amount: 30200, type: "Empresa", cat: "Transporte" },
-      { desc: "Taxi Aeropuerto - Distrito", amount: 18000, type: "Empresa", cat: "Transporte" },
-      { desc: "Desayuno", amount: 23000, type: "Empresa", cat: "Alimentación" },
-      { desc: "Capuchino 1 (Bogotá)", amount: 18300, type: "Empresa", cat: "Alimentación" },
-      { desc: "Capuchino 2 (Valledupar)", amount: 15600, type: "Empresa", cat: "Alimentación" },
-      { desc: "Almuerzo", amount: 20000, type: "Empresa", cat: "Alimentación" },
-      { desc: "Hotel (2 noches)", amount: 403600, type: "Empresa", cat: "Hospedaje" },
-      { desc: "Case y vidrio templado", amount: 50000, type: "Personal", cat: "Personal" },
-      { desc: "Desodorante y chicles", amount: 15000, type: "Personal", cat: "Personal" },
-      { desc: "Decathlon (Chaqueta + Maleta)", amount: 105000, type: "Personal", cat: "Personal" }
-    ];
-
-    let saved = localStorage.getItem('viaticos_gastos_v3');
-    let expenses = saved ? JSON.parse(saved) : initialExpenses;
-    let chartInstance = null;
-
-    function formatCOP(val) {
-      return '$ ' + Number(val).toLocaleString('es-CO');
-    }
-
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-      event.currentTarget.classList.add('active');
-      document.getElementById('tab-' + tabName).classList.add('active');
-    }
-
-    function render() {
-      const tbodyAll = document.getElementById('table-all');
-      const tbodyEmp = document.getElementById('table-empresa');
-      const tbodyPer = document.getElementById('table-personal');
-
-      if (tbodyAll) tbodyAll.innerHTML = '';
-      if (tbodyEmp) tbodyEmp.innerHTML = '';
-      if (tbodyPer) tbodyPer.innerHTML = '';
-
-      let totalEmpresa = 0;
-      let totalPersonal = 0;
-
-      expenses.forEach((item) => {
-        const val = Number(item.amount);
-        const catClass = 'tag-' + (item.cat ? item.cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'personal');
-
-        // Fila para resumen general
-        if (tbodyAll) {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${item.desc}</td>
-            <td><strong>${item.type}</strong></td>
-            <td><span class="tag ${catClass}">${item.cat}</span></td>
-            <td>${formatCOP(val)}</td>
-          `;
-          tbodyAll.appendChild(tr);
-        }
-
-        // Filas por tipo
-        if (item.type === 'Empresa') {
-          totalEmpresa += val;
-          if (tbodyEmp) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${item.desc}</td>
-              <td><span class="tag ${catClass}">${item.cat}</span></td>
-              <td>${formatCOP(val)}</td>
-            `;
-            tbodyEmp.appendChild(tr);
-          }
-        } else {
-          totalPersonal += val;
-          if (tbodyPer) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${item.desc}</td>
-              <td><span class="tag ${catClass}">${item.cat}</span></td>
-              <td>${formatCOP(val)}</td>
-            `;
-            tbodyPer.appendChild(tr);
-          }
-        }
-      });
-
-      // Cálculos Financieros
-      const anticipo = 1100505;
-      const disponible = 325382; // Efectivo $148k + Banco $177k
-      const saldoDevolverEmpresa = anticipo - totalEmpresa;
-      const reponer = saldoDevolverEmpresa - disponible;
-
-      // Actualizar KPIs
-      document.getElementById('kpi-empresa-gen').innerText = formatCOP(totalEmpresa);
-      document.getElementById('kpi-empresa-sub').innerText = formatCOP(totalEmpresa);
-      document.getElementById('kpi-personal-gen').innerText = formatCOP(totalPersonal);
-      document.getElementById('kpi-personal-sub').innerText = formatCOP(totalPersonal);
-      document.getElementById('kpi-reponer').innerText = formatCOP(reponer);
-      document.getElementById('summary-reponer').innerText = formatCOP(reponer);
-
-      updateChart(totalEmpresa, totalPersonal, disponible);
-      localStorage.setItem('viaticos_gastos_v3', JSON.stringify(expenses));
-    }
-
-    function updateChart(empresa, personal, disponible) {
-      const canvasCtx = document.getElementById('expensesChart');
-      if (!canvasCtx) return;
-      const ctx = canvasCtx.getContext('2d');
-      if (chartInstance) chartInstance.destroy();
-
-      chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Empresa', 'Personal', 'Disponible'],
-          datasets: [{
-            data: [empresa, personal, disponible],
-            backgroundColor: ['#2563eb', '#8b5cf6', '#10b981']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
-        }
-      });
-    }
-
-    document.getElementById('expense-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const desc = document.getElementById('desc').value;
-      const amount = parseFloat(document.getElementById('amount').value);
-      const type = document.getElementById('type').value;
-      const cat = document.getElementById('category').value;
-
-      expenses.push({ desc, amount, type, cat });
-      render();
-      e.target.reset();
-    });
-
-    window.addEventListener('DOMContentLoaded', render);
-    render();
-  </script>
-</body>
-</html>
+          <div
