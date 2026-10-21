@@ -35,7 +35,6 @@
     header p { color: var(--text-muted); font-size: 0.8rem; }
     .badge { background-color: #e0e7ff; color: #4338ca; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 
-    /* BARRA DE NAVEGACIÓN DE PESTAÑAS */
     .nav-tabs {
       display: flex;
       gap: 0.5rem;
@@ -58,4 +57,400 @@
     .tab-btn.active {
       color: var(--accent-blue);
       border-bottom-color: var(--accent-blue);
-      background-
+      background-color: #eff6ff;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .card-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; margin-bottom: 0.3rem; }
+    .card-value { font-size: 1.25rem; font-weight: 700; }
+    .card-sub { font-size: 0.7rem; margin-top: 0.2rem; color: var(--text-muted); }
+    .text-danger { color: var(--accent-danger); }
+    .text-success { color: var(--accent-success); }
+    .text-purple { color: var(--accent-purple); }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 850px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--card-bg);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+    .panel-header h2 { font-size: 1rem; font-weight: 600; }
+
+    .table-container { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; white-space: nowrap; }
+    th, td { padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border-color); text-align: left; }
+    th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; }
+
+    .tag { padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; }
+    .tag-transporte { background: #dbeafe; color: #1e40af; }
+    .tag-alimentacion { background: #fef3c7; color: #92400e; }
+    .tag-hospedaje { background: #e0e7ff; color: #3730a3; }
+    .tag-personal { background: #fce7f3; color: #9d174d; }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: var(--accent-danger);
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+    }
+    .btn-delete:hover { background-color: #fee2e2; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.6rem; }
+    @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+    input, select, button {
+      width: 100%; padding: 0.55rem; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.8rem;
+    }
+    button.btn-primary {
+      background-color: var(--accent-blue); color: white; border: none; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    button.btn-primary:hover { background-color: #1d4ed8; }
+
+    .chart-box { width: 100%; max-width: 220px; margin: 0 auto; }
+    .alert-box { background-color: #fff1f2; border-left: 4px solid var(--accent-danger); padding: 0.7rem; border-radius: 6px; font-size: 0.75rem; color: #9f1239; margin-top: 0.8rem; line-height: 1.4; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <header>
+      <div>
+        <h1>Control Financiero & Viáticos</h1>
+        <p>Gestión separada de presupuesto corporativo y finanzas personales</p>
+      </div>
+      <span class="badge">✈️ Valledupar</span>
+    </header>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('resumen', this)">📊 Resumen General</button>
+      <button class="tab-btn" onclick="switchTab('empresa', this)">🏢 Gastos Empresa</button>
+      <button class="tab-btn" onclick="switchTab('personal', this)">👤 Gastos Personales</button>
+    </nav>
+
+    <!-- FORMULARIO DE REGISTRO RÁPIDO -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>➕ Registrar Nuevo Gasto</h2>
+        <button type="button" onclick="resetData()" style="width:auto; padding: 0.3rem 0.6rem; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size:0.7rem; cursor:pointer; border-radius:4px;">🔄 Restablecer Datos</button>
+      </div>
+      <form id="expense-form">
+        <div class="form-grid">
+          <input type="text" id="desc" placeholder="Descripción (ej. Taxi, Cena, Compra)" required>
+          <input type="number" id="amount" placeholder="Valor (COP)" required>
+          <select id="type">
+            <option value="Empresa">🏢 Empresa (Legalizable)</option>
+            <option value="Personal">👤 Personal</option>
+          </select>
+          <select id="category">
+            <option value="Alimentación">Alimentación</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Hospedaje">Hospedaje</option>
+            <option value="Personal">Personal / Compras</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary">Guardar Gasto</button>
+      </form>
+    </div>
+
+    <!-- PESTAÑA 1: RESUMEN GENERAL -->
+    <div id="tab-resumen" class="tab-content active">
+      <div class="kpi-grid">
+        <div class="card">
+          <div class="card-title">Anticipo Recibido</div>
+          <div class="card-value">$ 1.100.505</div>
+          <div class="card-sub">Giro inicial empresa</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Legalizable (Empresa)</div>
+          <div class="card-value" id="kpi-empresa-gen">$ 0</div>
+          <div class="card-sub">Total facturado a empresa</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Gastos Personales</div>
+          <div class="card-value text-purple" id="kpi-personal-gen">$ 0</div>
+          <div class="card-sub">Compras de uso personal</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Saldo a Reponer</div>
+          <div class="card-value text-danger" id="kpi-reponer">$ 0</div>
+          <div class="card-sub">Aportar de fondos propios</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="panel">
+          <div class="panel-header"><h2>📜 Historial Consolidado (Todos los Gastos)</h2></div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Concepto</th>
+                  <th>Tipo</th>
+                  <th>Categoría</th>
+                  <th>Valor</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="table-all"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel" style="text-align: center;">
+            <h2>Distribución General</h2>
+            <div class="chart-box" style="margin-top: 0.8rem;">
+              <canvas id="expensesChart"></canvas>
+            </div>
+          </div>
+          <div class="alert-box">
+            <strong>📌 Estado del Cuadre:</strong><br>
+            Para cerrar el anticipo de $1.100.505 debes devolver el saldo a la empresa. Usando tu disponible en efectivo y banco ($325.382), debes reponer <span id="summary-reponer">$0</span> de tus fondos propios.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 2: EMPRESA -->
+    <div id="tab-empresa" class="tab-content">
+      <div class="kpi-grid">
+        <div class="card">
+          <div class="card-title">Presupuesto Legalizable</div>
+          <div class="card-value text-success" id="kpi-empresa-sub">$ 0</div>
+          <div class="card-sub">Aprobado para soporte fiscal</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>🏢 Detalle de Gastos Corporativos (Empresa)</h2></div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Categoría</th>
+                <th>Valor COP</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="table-empresa"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: PERSONAL -->
+    <div id="tab-personal" class="tab-content">
+      <div class="kpi-grid">
+        <div class="card">
+          <div class="card-title">Total Compras Personales</div>
+          <div class="card-value text-purple" id="kpi-personal-sub">$ 0</div>
+          <div class="card-sub">Efectuados durante el viaje</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>👤 Detalle de Gastos Personales</h2></div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Categoría</th>
+                <th>Valor COP</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="table-personal"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const initialExpenses = [
+      { desc: "Taxi Casa - Aeropuerto", amount: 30200, type: "Empresa", cat: "Transporte" },
+      { desc: "Taxi Aeropuerto - Distrito", amount: 18000, type: "Empresa", cat: "Transporte" },
+      { desc: "Desayuno", amount: 23000, type: "Empresa", cat: "Alimentación" },
+      { desc: "Capuchino 1 (Bogotá)", amount: 18300, type: "Empresa", cat: "Alimentación" },
+      { desc: "Capuchino 2 (Valledupar)", amount: 15600, type: "Empresa", cat: "Alimentación" },
+      { desc: "Almuerzo", amount: 20000, type: "Empresa", cat: "Alimentación" },
+      { desc: "Cena", amount: 20000, type: "Empresa", cat: "Alimentación" },
+      { desc: "Hotel (2 noches)", amount: 383600, type: "Empresa", cat: "Hospedaje" },
+      { desc: "Case y vidrio templado", amount: 50000, type: "Personal", cat: "Personal" },
+      { desc: "Desodorante y chicles", amount: 15000, type: "Personal", cat: "Personal" },
+      { desc: "Decathlon (Chaqueta + Maleta)", amount: 105000, type: "Personal", cat: "Personal" }
+    ];
+
+    let saved = localStorage.getItem('viaticos_gastos_v6');
+    let expenses = saved ? JSON.parse(saved) : initialExpenses;
+    let chartInstance = null;
+
+    function resetData() {
+      if (confirm('¿Restablecer la lista de gastos a los valores originales?')) {
+        expenses = JSON.parse(JSON.stringify(initialExpenses));
+        render();
+      }
+    }
+
+    function formatCOP(val) {
+      return '$ ' + Number(val).toLocaleString('es-CO');
+    }
+
+    function switchTab(tabName, element) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      if (element) element.classList.add('active');
+      const targetTab = document.getElementById('tab-' + tabName);
+      if (targetTab) targetTab.classList.add('active');
+    }
+
+    function deleteExpense(index) {
+      if (confirm(`¿Deseas eliminar "${expenses[index].desc}"?`)) {
+        expenses.splice(index, 1);
+        render();
+      }
+    }
+
+    function render() {
+      const tbodyAll = document.getElementById('table-all');
+      const tbodyEmp = document.getElementById('table-empresa');
+      const tbodyPer = document.getElementById('table-personal');
+
+      if (tbodyAll) tbodyAll.innerHTML = '';
+      if (tbodyEmp) tbodyEmp.innerHTML = '';
+      if (tbodyPer) tbodyPer.innerHTML = '';
+
+      let totalEmpresa = 0;
+      let totalPersonal = 0;
+
+      expenses.forEach((item, index) => {
+        const val = Number(item.amount);
+        const catClass = 'tag-' + (item.cat ? item.cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'personal');
+
+        if (tbodyAll) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.desc}</td>
+            <td><strong>${item.type}</strong></td>
+            <td><span class="tag ${catClass}">${item.cat}</span></td>
+            <td>${formatCOP(val)}</td>
+            <td><button class="btn-delete" onclick="deleteExpense(${index})" title="Eliminar">🗑️</button></td>
+          `;
+          tbodyAll.appendChild(tr);
+        }
+
+        if (item.type === 'Empresa') {
+          totalEmpresa += val;
+          if (tbodyEmp) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${item.desc}</td>
+              <td><span class="tag ${catClass}">${item.cat}</span></td>
+              <td>${formatCOP(val)}</td>
+              <td><button class="btn-delete" onclick="deleteExpense(${index})" title="Eliminar">🗑️</button></td>
+            `;
+            tbodyEmp.appendChild(tr);
+          }
+        } else {
+          totalPersonal += val;
+          if (tbodyPer) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${item.desc}</td>
+              <td><span class="tag ${catClass}">${item.cat}</span></td>
+              <td>${formatCOP(val)}</td>
+              <td><button class="btn-delete" onclick="deleteExpense(${index})" title="Eliminar">🗑️</button></td>
+            `;
+            tbodyPer.appendChild(tr);
+          }
+        }
+      });
+
+      const anticipo = 1100505;
+      const disponible = 325382;
+      const saldoDevolverEmpresa = anticipo - totalEmpresa;
+      const reponer = saldoDevolverEmpresa - disponible;
+
+      document.getElementById('kpi-empresa-gen').innerText = formatCOP(totalEmpresa);
+      document.getElementById('kpi-empresa-sub').innerText = formatCOP(totalEmpresa);
+      document.getElementById('kpi-personal-gen').innerText = formatCOP(totalPersonal);
+      document.getElementById('kpi-personal-sub').innerText = formatCOP(totalPersonal);
+      document.getElementById('kpi-reponer').innerText = formatCOP(reponer);
+      document.getElementById('summary-reponer').innerText = formatCOP(reponer);
+
+      updateChart(totalEmpresa, totalPersonal, disponible);
+      localStorage.setItem('viaticos_gastos_v6', JSON.stringify(expenses));
+    }
+
+    function updateChart(empresa, personal, disponible) {
+      const canvasCtx = document.getElementById('expensesChart');
+      if (!canvasCtx) return;
+      const ctx = canvasCtx.getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Empresa', 'Personal', 'Disponible'],
+          datasets: [{
+            data: [empresa, personal, disponible],
+            backgroundColor: ['#2563eb', '#8b5cf6', '#10b981']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
+        }
+      });
+    }
+
+    document.getElementById('expense-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const desc = document.getElementById('desc').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const type = document.getElementById('type').value;
+      const cat = document.getElementById('category').value;
+
+      expenses.push({ desc, amount, type, cat });
+      render();
+      e.target.reset();
+    });
+
+    window.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
+</html>
