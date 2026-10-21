@@ -35,6 +35,38 @@
     header p { color: var(--text-muted); font-size: 0.8rem; }
     .badge { background-color: #e0e7ff; color: #4338ca; padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 
+    /* BARRA DE NAVEGACIÓN DE PESTAÑAS */
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+      border-bottom: 2px solid var(--border-color);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 0.6rem 1.2rem;
+      background: none;
+      border: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      color: var(--accent-blue);
+      border-bottom-color: var(--accent-blue);
+      background-color: #eff6ff;
+      border-radius: 6px 6px 0 0;
+    }
+
+    /* CONTENIDOS DE LAS PESTAÑAS */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* KPI CARDS */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -53,6 +85,7 @@
     .card-sub { font-size: 0.7rem; margin-top: 0.2rem; color: var(--text-muted); }
     .text-danger { color: var(--accent-danger); }
     .text-success { color: var(--accent-success); }
+    .text-purple { color: var(--accent-purple); }
 
     .dashboard-grid {
       display: grid;
@@ -88,10 +121,10 @@
     input, select, button {
       width: 100%; padding: 0.55rem; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.8rem;
     }
-    button {
+    button.btn-primary {
       background-color: var(--accent-blue); color: white; border: none; font-weight: 600; cursor: pointer; transition: 0.2s;
     }
-    button:hover { background-color: #1d4ed8; }
+    button.btn-primary:hover { background-color: #1d4ed8; }
 
     .chart-box { width: 100%; max-width: 220px; margin: 0 auto; }
     .alert-box { background-color: #fff1f2; border-left: 4px solid var(--accent-danger); padding: 0.7rem; border-radius: 6px; font-size: 0.75rem; color: #9f1239; margin-top: 0.8rem; line-height: 1.4; }
@@ -104,66 +137,70 @@
     <header>
       <div>
         <h1>Control Financiero & Viáticos</h1>
-        <p>Presupuesto corporativo y personal</p>
+        <p>Gestión separada de presupuesto corporativo y finanzas personales</p>
       </div>
       <span class="badge">✈️ Valledupar</span>
     </header>
 
-    <!-- KPI CARDS -->
-    <div class="kpi-grid">
-      <div class="card">
-        <div class="card-title">Anticipo Recibido</div>
-        <div class="card-value">$ 1.100.505</div>
-        <div class="card-sub">Giro inicial empresa</div>
-      </div>
-      <div class="card">
-        <div class="card-title">A Legalizar (Empresa)</div>
-        <div class="card-value" id="kpi-empresa">$ 528.700</div>
-        <div class="card-sub">Gastos corporativos</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Fondos Disponibles</div>
-        <div class="card-value text-success">$ 325.382</div>
-        <div class="card-sub">Efectivo + Banco</div>
-      </div>
-      <div class="card">
-        <div class="card-title">Saldo a Reponer</div>
-        <div class="card-value text-danger" id="kpi-reponer">$ 246.423</div>
-        <div class="card-sub">Dinero personal requerido</div>
-      </div>
+    <!-- BARRA DE NAVEGACIÓN -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('resumen')">📊 Resumen General</button>
+      <button class="tab-btn" onclick="switchTab('empresa')">🏢 Gastos Empresa</button>
+      <button class="tab-btn" onclick="switchTab('personal')">👤 Gastos Personales</button>
+    </nav>
+
+    <!-- FORMULARIO DE REGISTRO RÁPIDO -->
+    <div class="panel">
+      <div class="panel-header"><h2>➕ Registrar Nuevo Gasto</h2></div>
+      <form id="expense-form">
+        <div class="form-grid">
+          <input type="text" id="desc" placeholder="Descripción (ej. Taxi, Cena, Compra)" required>
+          <input type="number" id="amount" placeholder="Valor (COP)" required>
+          <select id="type">
+            <option value="Empresa">🏢 Empresa (Legalizable)</option>
+            <option value="Personal">👤 Personal</option>
+          </select>
+          <select id="category">
+            <option value="Transporte">Transporte</option>
+            <option value="Alimentación">Alimentación</option>
+            <option value="Hospedaje">Hospedaje</option>
+            <option value="Personal">Personal / Compras</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary">Guardar Gasto</button>
+      </form>
     </div>
 
-    <div class="dashboard-grid">
-      
-      <!-- FORMULARIO Y TABLA -->
-      <div>
-        <div class="panel">
-          <div class="panel-header"><h2>➕ Registrar Nuevo Gasto</h2></div>
-          <form id="expense-form">
-            <div class="form-grid">
-              <input type="text" id="desc" placeholder="Descripción (ej. Taxi, Cena)" required>
-              <input type="number" id="amount" placeholder="Valor (COP)" required>
-              <select id="type">
-                <option value="Empresa">🏢 Empresa (Legalizable)</option>
-                <option value="Personal">👤 Personal</option>
-              </select>
-              <select id="category">
-                <option value="Transporte">Transporte</option>
-                <option value="Alimentación">Alimentación</option>
-                <option value="Hospedaje">Hospedaje</option>
-                <option value="Personal">Personal / Compras</option>
-              </select>
-            </div>
-            <button type="submit">Guardar Gasto</button>
-          </form>
+    <!-- PESTAÑA 1: RESUMEN GENERAL -->
+    <div id="tab-resumen" class="tab-content active">
+      <div class="kpi-grid">
+        <div class="card">
+          <div class="card-title">Anticipo Recibido</div>
+          <div class="card-value">$ 1.100.505</div>
+          <div class="card-sub">Giro inicial empresa</div>
         </div>
+        <div class="card">
+          <div class="card-title">Legalizable (Empresa)</div>
+          <div class="card-value" id="kpi-empresa-gen">$ 528.700</div>
+          <div class="card-sub">Total facturado a empresa</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Gastos Personales</div>
+          <div class="card-value text-purple" id="kpi-personal-gen">$ 170.000</div>
+          <div class="card-sub">Compras de uso personal</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Saldo a Reponer</div>
+          <div class="card-value text-danger" id="kpi-reponer">$ 246.423</div>
+          <div class="card-sub">Aportar de fondos propios</div>
+        </div>
+      </div>
 
+      <div class="dashboard-grid">
         <div class="panel">
-          <div class="panel-header">
-            <h2>📜 Historial de Gastos</h2>
-          </div>
+          <div class="panel-header"><h2>📜 Historial Consolidado (Todos los Gastos)</h2></div>
           <div class="table-container">
-            <table id="expenses-table">
+            <table>
               <thead>
                 <tr>
                   <th>Concepto</th>
@@ -172,29 +209,83 @@
                   <th>Valor</th>
                 </tr>
               </thead>
-              <tbody id="table-body">
-                <!-- Se llena mediante JavaScript -->
-              </tbody>
+              <tbody id="table-all"></tbody>
             </table>
           </div>
         </div>
-      </div>
 
-      <!-- GRÁFICA Y RESUMEN -->
-      <div>
-        <div class="panel" style="text-align: center;">
-          <h2>Distribución</h2>
-          <div class="chart-box" style="margin-top: 0.8rem;">
-            <canvas id="expensesChart"></canvas>
+        <div>
+          <div class="panel" style="text-align: center;">
+            <h2>Distribución General</h2>
+            <div class="chart-box" style="margin-top: 0.8rem;">
+              <canvas id="expensesChart"></canvas>
+            </div>
+          </div>
+          <div class="alert-box">
+            <strong>📌 Estado del Cuadre:</strong><br>
+            Para cerrar el anticipo de $1.100.505 debes devolver $571.805 a la empresa. Usando tu efectivo disponible ($148k) y banco ($177k), debes reponer <span id="summary-reponer">$246.423</span> de tus fondos propios.
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="alert-box">
-          <strong>📌 Estado del Cuadre:</strong><br>
-          Debes aportar <span id="summary-reponer">$246.423</span> de tus fondos personales para devolver el saldo pendiente a la empresa ($571.805) integrando el efectivo y banco disponible.
+    <!-- PESTAÑA 2: EMPRESA -->
+    <div id="tab-empresa" class="tab-content">
+      <div class="kpi-grid">
+        <div class="card">
+          <div class="card-title">Presupuesto Legalizable</div>
+          <div class="card-value text-success" id="kpi-empresa-sub">$ 528.700</div>
+          <div class="card-sub">Aprobado para soporte fiscal</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Soporte requeridos</div>
+          <div class="card-value">7 Facturas/Tiquetes</div>
+          <div class="card-sub">Hoteles, taxis y alimentaciones</div>
         </div>
       </div>
 
+      <div class="panel">
+        <div class="panel-header"><h2>🏢 Detalle de Gastos Corporativos (Empresa)</h2></div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Categoría</th>
+                <th>Valor COP</th>
+              </tr>
+            </thead>
+            <tbody id="table-empresa"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑA 3: PERSONAL -->
+    <div id="tab-personal" class="tab-content">
+      <div class="kpi-grid">
+        <div class="card">
+          <div class="card-title">Total Compras Personales</div>
+          <div class="card-value text-purple" id="kpi-personal-sub">$ 170.000</div>
+          <div class="card-sub">Efectuados durante el viaje</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>👤 Detalle de Gastos Personales</h2></div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Categoría</th>
+                <th>Valor COP</th>
+              </tr>
+            </thead>
+            <tbody id="table-personal"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -213,50 +304,92 @@
       { desc: "Decathlon (Chaqueta + Maleta)", amount: 105000, type: "Personal", cat: "Personal" }
     ];
 
-    // Forzar actualización inicial limpia limpiando caché corrupto de localStorage si existiera vacío
-    let saved = localStorage.getItem('viaticos_gastos_v2');
+    let saved = localStorage.getItem('viaticos_gastos_v3');
     let expenses = saved ? JSON.parse(saved) : initialExpenses;
     let chartInstance = null;
 
     function formatCOP(val) {
-      return '$ ' + val.toLocaleString('es-CO');
+      return '$ ' + Number(val).toLocaleString('es-CO');
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-' + tabName).classList.add('active');
     }
 
     function render() {
-      const tbody = document.getElementById('table-body');
-      if (!tbody) return;
-      tbody.innerHTML = '';
+      const tbodyAll = document.getElementById('table-all');
+      const tbodyEmp = document.getElementById('table-empresa');
+      const tbodyPer = document.getElementById('table-personal');
+
+      if (tbodyAll) tbodyAll.innerHTML = '';
+      if (tbodyEmp) tbodyEmp.innerHTML = '';
+      if (tbodyPer) tbodyPer.innerHTML = '';
 
       let totalEmpresa = 0;
       let totalPersonal = 0;
 
       expenses.forEach((item) => {
-        if (item.type === 'Empresa') totalEmpresa += Number(item.amount);
-        if (item.type === 'Personal') totalPersonal += Number(item.amount);
-
-        const tr = document.createElement('tr');
+        const val = Number(item.amount);
         const catClass = 'tag-' + (item.cat ? item.cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'personal');
-        
-        tr.innerHTML = `
-          <td>${item.desc}</td>
-          <td><strong>${item.type}</strong></td>
-          <td><span class="tag ${catClass}">${item.cat}</span></td>
-          <td>${formatCOP(Number(item.amount))}</td>
-        `;
-        tbody.appendChild(tr);
+
+        // Fila para resumen general
+        if (tbodyAll) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.desc}</td>
+            <td><strong>${item.type}</strong></td>
+            <td><span class="tag ${catClass}">${item.cat}</span></td>
+            <td>${formatCOP(val)}</td>
+          `;
+          tbodyAll.appendChild(tr);
+        }
+
+        // Filas por tipo
+        if (item.type === 'Empresa') {
+          totalEmpresa += val;
+          if (tbodyEmp) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${item.desc}</td>
+              <td><span class="tag ${catClass}">${item.cat}</span></td>
+              <td>${formatCOP(val)}</td>
+            `;
+            tbodyEmp.appendChild(tr);
+          }
+        } else {
+          totalPersonal += val;
+          if (tbodyPer) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${item.desc}</td>
+              <td><span class="tag ${catClass}">${item.cat}</span></td>
+              <td>${formatCOP(val)}</td>
+            `;
+            tbodyPer.appendChild(tr);
+          }
+        }
       });
 
+      // Cálculos Financieros
       const anticipo = 1100505;
-      const disponible = 325382;
+      const disponible = 325382; // Efectivo $148k + Banco $177k
       const saldoDevolverEmpresa = anticipo - totalEmpresa;
       const reponer = saldoDevolverEmpresa - disponible;
 
-      document.getElementById('kpi-empresa').innerText = formatCOP(totalEmpresa);
+      // Actualizar KPIs
+      document.getElementById('kpi-empresa-gen').innerText = formatCOP(totalEmpresa);
+      document.getElementById('kpi-empresa-sub').innerText = formatCOP(totalEmpresa);
+      document.getElementById('kpi-personal-gen').innerText = formatCOP(totalPersonal);
+      document.getElementById('kpi-personal-sub').innerText = formatCOP(totalPersonal);
       document.getElementById('kpi-reponer').innerText = formatCOP(reponer);
       document.getElementById('summary-reponer').innerText = formatCOP(reponer);
 
       updateChart(totalEmpresa, totalPersonal, disponible);
-      localStorage.setItem('viaticos_gastos_v2', JSON.stringify(expenses));
+      localStorage.setItem('viaticos_gastos_v3', JSON.stringify(expenses));
     }
 
     function updateChart(empresa, personal, disponible) {
@@ -293,7 +426,6 @@
       e.target.reset();
     });
 
-    // Ejecutar render al cargar la página
     window.addEventListener('DOMContentLoaded', render);
     render();
   </script>
